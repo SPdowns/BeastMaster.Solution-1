@@ -34,7 +34,7 @@ namespace BeastMaster.Controllers
         //     }
         
     
-   // GET api/animals
+   // GET api/creatures
     [HttpGet]
     public ActionResult<IEnumerable<Creature>> Get(string creatureName, string creatureOriginDate, string creatureTaxonomy, string creatureType, string creatureAbility, string creatureHabitat, string creatureMorality, string creatureDescription, string creatureLifespan, string creatureRelatedCreature, string creatureNemesis, string creatureWeakness, string creatureOriginCulture, string creatureImage)
     {
@@ -126,29 +126,37 @@ namespace BeastMaster.Controllers
     
     
     
-    
-    
-    
-    
-    
-    
 
-
+/*         [HttpGet("{id}")]
+        public ActionResult<IEnumerable<Creature>> Get(int id)
+        {
+            
+            var query = _db.Creatures.AsQueryable();
+            
+            query = query.Where(entry => entry.CreatureTaxonomy == creatureTaxonomy);
+        }
+ */
     
     
     
-        // [HttpGet]
-        // public ActionResult<IEnumerable<Creature>> Get(string creatureTaxonomy)
+        // [HttpGet("{id}")]
+        // public ActionResult<IEnumerable<Creature>> Get(string creatureTaxonomy, int id)
         // {
-        //     var query = _db.Creatures.AsQueryable();
+        // var query = _db.Creatures.AsQueryable();
 
-        //     if (creatureTaxonomy != null)
-        //     {
-        //         query = query.Where(entry => entry.CreatureTaxonomy == creatureTaxonomy);
-        //     }
+        // if (creatureTaxonomy != null)
+        // {
+        //     query = query.Where(entry => entry.CreatureTaxonomy == creatureTaxonomy);
+        // }
 
         //     return query.ToList();
         // }
+
+        [HttpGet ("{id}")]
+        public ActionResult<Creature> Get(int id)
+        {
+        return _db.Creatures.FirstOrDefault(entry => entry.CreatureId == id);
+        } 
 
         // PUT api/creatures/5
         [HttpPut("{id}")]
