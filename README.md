@@ -37,6 +37,76 @@
 * 
 * 
 * 
+
+
+Test Install Notes
+Clone repo repo url 
+
+navigate to desired directory for where your project will go
+git clone url
+add workspace
+cd BeastMaster
+dotnet restore
+dotnet build
+create a new terminal
+cd into BeastMaster
+dotnet ef database update
+dotnet watch run
+
+open postman
+click the + symbol in the middle of the page
+
+~TO GET AN ITEM~
+Set your request to type "GET" 
+http://localhost:5000/api/creatures/ (for index of all)
+or
+http://localhost:5000/api/creatures/id (for specific creature details)
+Hit Send
+
+
+
+~TO ADD AN ITEM~
+Set your request to type "POST"
+http://localhost:5000/api/creatures/ 
+Select Body Tab
+Select Raw Radio Button
+Select JSON from dropdown
+Write your addition to the database in the following format
+{
+  "creatureName" = "your value",
+  "creatureOriginCulure" = "your value",
+  "creatureOriginDate" = "your value",
+  "creatureTaxonomy" = "your value",
+  "creatureType" = "your value",
+  "creatureAbility" = "your value",
+  "creatureHabitat" = "your value",
+  "creatureMorality" = "your value",
+  "creatureDescription" = "your value",
+  "creatureImage" = "your value",
+  "creatureLifespan" = "your value",
+  "creatureRelatedCreature" = "your value",
+  "creatureNemesis" = "your value",
+  "creatureWeakness" = "your value"
+}
+
+~TO EDIT AN ITEM~
+Make a GET request for the id you wish to edit
+http://localhost:5000/api/creatures/id
+You can select the returned item data and paste that into your request body section for editing. 
+Once you have completed your edits. 
+Set your request to Put
+Hit Send
+
+
+~To DELETE AN ITEM~
+Set your route in Postman to the id you wish to delete
+Set your request to Delete
+Hit Send
+
+* note: write note to user to refer to mysql settings for these values
+
+
+
 THIS HERE
 
 http://localhost:5000/api/creatures/Page?pageNumber=2&PageSize=5
@@ -48,38 +118,11 @@ http://localhost:5000/api/creatures/Page?pageNumber=2&PageSize=5
 * Install [Visual Studio Code](https://code.visualstudio.com/)
 * Install [MySql Workbench](https://www.mysql.com/products/workbench/)
 
-<br>
 
-## **PROTECTING YOUR DATA** 
-(when modifying for personal use)
 
-#### **Step 1: From within VSCode in the root project directory, we will create a .gitignore file**
 
-# For ![l-top](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)
-```js 
-touch .gitignore 
-```
 
-# For ![l-top](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)
-
-```js 
-ni .gitignore 
-```
-
-#### Step 2: commit that .gitignore file (this prevents your sensitive information from being shown to others). **⚠️DO NOT PROCEED UNTIL YOU DO!⚠️**
-
-![setup](https://coding-assets.s3-us-west-2.amazonaws.com/img/entity-readme-image.png "Set up instructions")
-
-#### Step 3: **To commit your .gitignore file enter the following commands**
-
-```js
-git add .gitignore
-```
-```js
-git commit -m "protect data"
-```
-
-#### Step 4: **Then, you need to update your username and password in the appsettings.json file.**
+#### Step: **You need to update your username and password in the appsettings.json file.**
 
 _by default these are set to user:root and an empty password. if you are unsure, refer to the settings for your MySqlWorkbench._
 
@@ -121,8 +164,12 @@ Your application is now built, as well as the requisite database for this applic
 ```js 
 dotnet watch run 
 ``` 
+<br>
 
+## **Note on Pagination**
+The Beast Master API returns a defaulit of 10 results per page at a time with a maximum of 50.
 
+To modify this, use the query parameters "limit" and "start" to alter the response results displayed.  The "limit" parameter will specify how many results will be displayed, and the "start" parameter will specify which element in the response the liimit should start counting.
 <br>
 
 ## **TECHNOLOGIES USED**
