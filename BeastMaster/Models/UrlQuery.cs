@@ -14,9 +14,9 @@ namespace BeastMaster.Models
       this.PageSize = 10;
     }
 
-    public UrlQuery(int pag)Number, int pageSize
+    public UrlQuery(int pageNumber, int pageSize)
     {
-      this.PageNumber = PageNumber < 1 ? 1 : pageNunber;
+      this.PageNumber = pageNumber < 1 ? 1 : pageNumber;
       this.PageSize = pageSize > 10 ? 10 : pageSize;
     }
   }

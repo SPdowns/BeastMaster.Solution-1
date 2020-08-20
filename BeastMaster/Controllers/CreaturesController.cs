@@ -14,7 +14,7 @@ namespace BeastMaster.Controllers
     {
         private BeastMasterContext _db;
 
-        public CreaturesConetroller(BeastMasterContext db)
+        public CreaturesController(BeastMasterContext db)
         {
             _db = db;
         }
@@ -146,10 +146,10 @@ namespace BeastMaster.Controllers
         
         //Pagination
         [HttpGet("page")]
-        pulic ActionResult GetPages([FromQuery] UrlQuery urlQuery)
+        public ActionResult GetPage([FromQuery] UrlQuery urlQuery)
         {
             var validUrlQuery = new UrlQuery(urlQuery.PageNumber, urlQuery.PageSize);
-            var pagedData = _db.Reviews
+            var pagedData = _db.Creatures
                 .OrderBy(creature => creature.CreatureId)
                 .Skip((validUrlQuery.PageNumber - 1) * validUrlQuery.PageSize)
                 .Take(validUrlQuery.PageSize);
