@@ -123,8 +123,6 @@ namespace BeastMaster.Controllers
         }
  */
     
-    
-    
         // [HttpGet("{id}")]
         // public ActionResult<IEnumerable<Creature>> Get(string creatureTaxonomy, int id)
         // {
@@ -137,6 +135,13 @@ namespace BeastMaster.Controllers
 
         //     return query.ToList();
         // }
+
+        [HttpPost]
+        public void Post([FromBody] Creature creature)
+        {
+            _db.Creatures.Add(creature);
+            _db.SaveChanges();
+        }
 
         [HttpGet ("{id}")]
         public ActionResult<Creature> Get(int id)
@@ -165,22 +170,13 @@ namespace BeastMaster.Controllers
             _db.SaveChanges();
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
         // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            var creatureToDelete = _db.Creatures.FirstOrDefault(entry => entry.CreatureId == id);
+            _db.Creatures.Remove(creatureToDelete);
+            _db.SaveChanges();
         }
     }
 }

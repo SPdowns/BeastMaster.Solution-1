@@ -37,8 +37,9 @@
 * 
 * 
 * 
+THIS HERE
 
-
+http://localhost:5000/api/creatures/Page?pageNumber=2&PageSize=5
 
 ## **REQUIREMENTS** 
 
