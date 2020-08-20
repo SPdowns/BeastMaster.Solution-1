@@ -14,7 +14,7 @@ namespace BeastMaster.Controllers
     {
         private BeastMasterContext _db;
 
-        public CreaturesController(BeastMasterContext db)
+        public CreaturesConetroller(BeastMasterContext db)
         {
             _db = db;
         }
@@ -112,20 +112,6 @@ namespace BeastMaster.Controllers
 
         return query.ToList();
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
 /*         [HttpGet("{id}")]
         public ActionResult<IEnumerable<Creature>> Get(int id)
@@ -156,7 +142,19 @@ namespace BeastMaster.Controllers
         public ActionResult<Creature> Get(int id)
         {
         return _db.Creatures.FirstOrDefault(entry => entry.CreatureId == id);
-        } 
+        }
+        
+        //Pagination
+        [HttpGet("page")]
+        pulic ActionResult GetPages([FromQuery] UrlQuery urlQuery)
+        {
+            var validUrlQuery = new UrlQuery(urlQuery.PageNumber, urlQuery.PageSize);
+            var pagedData = _db.Reviews
+                .OrderBy(creature => creature.CreatureId)
+                .Skip((validUrlQuery.PageNumber - 1) * validUrlQuery.PageSize)
+                .Take(validUrlQuery.PageSize);
+            return Ok(pagedData);
+        }
 
         // PUT api/creatures/5
         [HttpPut("{id}")]
