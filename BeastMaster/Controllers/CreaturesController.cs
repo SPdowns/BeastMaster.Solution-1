@@ -112,20 +112,6 @@ namespace BeastMaster.Controllers
 
         return query.ToList();
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
 /*         [HttpGet("{id}")]
         public ActionResult<IEnumerable<Creature>> Get(int id)
@@ -136,8 +122,6 @@ namespace BeastMaster.Controllers
             query = query.Where(entry => entry.CreatureTaxonomy == creatureTaxonomy);
         }
  */
-    
-    
     
         // [HttpGet("{id}")]
         // public ActionResult<IEnumerable<Creature>> Get(string creatureTaxonomy, int id)
@@ -152,11 +136,30 @@ namespace BeastMaster.Controllers
         //     return query.ToList();
         // }
 
+        [HttpPost]
+        public void Post([FromBody] Creature creature)
+        {
+            _db.Creatures.Add(creature);
+            _db.SaveChanges();
+        }
+
         [HttpGet ("{id}")]
         public ActionResult<Creature> Get(int id)
         {
         return _db.Creatures.FirstOrDefault(entry => entry.CreatureId == id);
-        } 
+        }
+        
+        //Pagination
+        [HttpGet("page")]
+        public ActionResult GetPage([FromQuery] UrlQuery urlQuery)
+        {
+            var validUrlQuery = new UrlQuery(urlQuery.PageNumber, urlQuery.PageSize);
+            var pagedData = _db.Creatures
+                .OrderBy(creature => creature.CreatureId)
+                .Skip((validUrlQuery.PageNumber - 1) * validUrlQuery.PageSize)
+                .Take(validUrlQuery.PageSize);
+            return Ok(pagedData);
+        }
 
         // PUT api/creatures/5
         [HttpPut("{id}")]
@@ -167,22 +170,13 @@ namespace BeastMaster.Controllers
             _db.SaveChanges();
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
         // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            var creatureToDelete = _db.Creatures.FirstOrDefault(entry => entry.CreatureId == id);
+            _db.Creatures.Remove(creatureToDelete);
+            _db.SaveChanges();
         }
     }
 }

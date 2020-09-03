@@ -1,0 +1,139 @@
+Wrappers for API Endpoints
+It’s always a good practice to add wrappers to your API response. What is a wrapper? Instead of just returning the data in the response, you have a possibility to return other parameters like error messages, response status, page number, data, page size, and so on. You get the point. So, instead of just returning List<Customer>, we will return Response<List<Customer>>. This would give us more flexibility and data to work with, Right?
+
+Create a new class, Wrappers/Response.cs
+
+public class Response<T>
+{
+    public Response()
+    {
+    }
+    public Response(T data)
+    {
+        Succeeded = true;
+        Message = string.Empty;
+        Errors = null;
+        Data = data;
+    }
+    public T Data { get; set; }
+    public bool Succeeded { get; set; }
+    public string[] Errors { get; set; }
+    public string Message { get; set; }
+}
+This is a pretty straight forward wrapper class. It can show you the status, the messages or error if any, and the data itself (T). This is how you would ideally want to expose your API endpoints. Let’s modify our CustomerController/GetById method.
+
+[HttpGet("{id}")]
+public async Task<IActionResult> GetById(int id)
+{
+    var customer = await context.Customers.Where(a => a.Id == id).FirstOrDefaultAsync();
+    return Ok(new Response<Customer>(customer));
+}
+Line 4 gets the customer record from our DB for a particular ID.
+Line 5 Returns a new wrapper class with customer data.
+
+customer by id
+You can see how useful this kind of approach is. Response.cs will be our base class. Now, from our API, we have 2 possibilities of responses, paged data (List of Customers) or a single record with no paged data (Customer by Id).
+
+We will extend the base class by adding pagination properties. Create another class, Wrappers/PagedResponse.cs
+
+public class PagedResponse<T> : Response<T>
+{
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public Uri FirstPage { get; set; }
+    public Uri LastPage { get; set; }
+    public int TotalPages { get; set; }
+    public int TotalRecords { get; set; }
+    public Uri NextPage { get; set; }
+    public Uri PreviousPage { get; set; }
+    public PagedResponse(T data, int pageNumber, int pageSize)
+    {
+        this.PageNumber = pageNumber;
+        this.PageSize = pageSize;
+        this.Data = data;
+        this.Message = null;
+        this.Succeeded = true;
+        this.Errors = null;
+    }
+}
+That’s quite a lot of properties to work with. We have page size, number, Uris of the first page, last page, total page count, and much more. Let’s start working on our Customer Controller.
+
+
+
+
+Customer Controller – GetAll
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var response = await context.Customer.ToListAsync();
+    return Ok(response);
+}
+This is what our CustomerController looked like. We will be modifying this method to accommodate pagination. For starters, we would ideally need the required page parameters on the query string of the request, so that request would like https://localhost:44312/api/customer?pageNumber=3&pageSize=10. We will call this model as PaginationFilter.
+
+Pagination Filter
+Create a new class , Filter/PaginationFilter.cs
+
+public class PaginationFilter
+{
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public PaginationFilter()
+    {
+        this.PageNumber = 1;
+        this.PageSize = 10;
+    }
+    public PaginationFilter(int pageNumber, int pageSize)
+    {
+        this.PageNumber = pageNumber < 1 ? 1 : pageNumber;
+        this.PageSize = pageSize > 10 ? 10 : pageSize;
+    }
+}
+Line 12 states that the minimum page number is always set to 1.
+Line 13 – For this demonstration, we will set our filter such that the maximum page size a user can request for is 10. If he/she requests a page size of 1000, it would default back to 10.
+
+
+Let’s add this filter to our controller method.
+
+[HttpGet]
+public async Task<IActionResult> GetAll([FromQuery] PaginationFilter filter)
+{
+    var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+    var response = await context.Customer.ToListAsync();
+    return Ok(response);
+}
+Line 2 – Read the Query string on the request for page filter properties.
+Line 3 – Validates the filter to a valid filter object (defaulting back to the allowed values). Ps, you would probably want to use a mapper here. But this current approach is fine for our guide.
+
+Paging with Entity Framework Core
+This is the core function of the entire implementation, the actual paging. It’s pretty easy with EFCore. Instead of querying the entire list of data from the source. EFCore makes it dead easy to query just a particular set of records, ideal for paging. Here is how you would achieve it.
+
+var pagedData = await context.Customers
+               .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+               .Take(validFilter.PageSize)
+               .ToListAsync();
+Line 1 accesses the Customer Table.
+Line 2 Skips a certain set of records, by the page number * page size.
+Line 3 Takes only the required amount of data, set by page size.
+
+Modify the controller as below.
+
+[HttpGet]
+public async Task<IActionResult> GetAll([FromQuery] PaginationFilter filter)
+{
+    var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+    var pagedData = await context.Customers
+        .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+        .Take(validFilter.PageSize)
+        .ToListAsync();
+    var totalRecords = await context.Customers.CountAsync();
+    return Ok(new PagedResponse<List<Customer>>(pagedData, validFilter.PageNumber, validFilter.PageSize));
+}
+Line 9 – We will be counting the total records for further use.
+Line 10 – Wraps the paged data in our PagedResponse Wrapper.
+
+
+paged
+That’s great! We have already implemented basic paging in our ASP.NET Core API. Let’s try to request with a page size larger than 10.
+
+paged valid
+It gets defaulted to 10 😀 Now, let’s start adding some advanced features like URL of the next page and so on.
